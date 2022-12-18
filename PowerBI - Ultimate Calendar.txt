@@ -1,0 +1,33 @@
+Calendar = ADDCOLUMNS(
+	CALENDAR(DATE(2011, 1, 1), DATE(2025, 12, 31)),
+
+	"Year", YEAR([Date]),
+	"Quarter", "Q" & QUARTER([Date]),
+	"Month Num", MONTH([Date]),
+	"Week Num", WEEKNUM([Date]),
+	"Week Day", WEEKDAY([Date]),
+	"Day", DAY([Date]),
+
+	"Month", FORMAT([Date], "mmmm"),
+	"Day Name", FORMAT([Date], "dddd"),
+	"Quarter Number", QUARTER([Date]),
+
+	"Year-Month", YEAR([Date]) & "-" MONTH([Date]),
+	/*The below is used to sort the Year-Month field, note: below field to be made as whole number and not text*/
+	"Year-Month Sort", YEAR([Date]) & MONTH([Date]), 
+
+	"Year-Quarter", YEAR([Date]) & "-Q" & QUARTER([Date]),
+	/*The below is used to sort the Year-Quarter field, note: below field to be made as whole number and not text*/
+	"Year-Quarter Sort", YEAR([Date]) & QUARTER([Date]),
+
+	"Fiscal Year", YEAR(EDATE([Date], 11))
+	, "Fiscal Month", MONTH(EDATE([Date], 11))
+	, "Fiscal Quarter", QAURTER(EDATE([Date], 11))
+	, "Fiscal Week", WEEKNUM(EDATE([Date], 11))
+
+	/*Last 6 Months dates from today.*/
+	, "Last 6 Months", IF(EOMONTH([Date], 0) > EOMONTH(TODAY(), -6) && [Date] <= TODAY(), TRUE())
+)
+
+
+/*We can hide the fields which we have created for sorting purpose*/
