@@ -1,0 +1,68 @@
+TIME INTELLIGENCE CALCULATIONS
+----------------------------------------------------------------------------------------
+
+Difference between This Year vs Last Year
+	- Identify the Measure which you want to compare:
+		Eg. SUM(Revenue), AVG(Profit) ....
+
+	TotalSales = SUM(Sales[Sales])
+	TotalSalesLY = CALCULATE(TotalSales, SAMEPERIODLASTYEAR(Dates[Date]))
+
+	Diff LY and TY = IF(ISBLANK([TotalSalesLY]), BLANK(), [TotalSales] - [TotalSalesLY])
+
+-----------------------------------------------------------------------------------------
+
+Showcasing MTD, QTD and YTD comparisons
+	- Measures that we have - [TotalProfits], [TotalCosts], [TotalSales]
+
+	SalesQTD = CALCULATE([TotalSales], DATESQTD(Date[Date]))
+
+	SalesLY = CALCULATE([TotalSales], DATEADD(Date[Date], -1, YEAR))
+	SalesLY QTD = CALCULATE([SalesLY], DATESQTD(Date[Date]))
+
+	Showing data of previous year for the same QTD, example if we have data till 20th OCT-2022,
+	then in QTD comparison we need data till 20th-OCT-2021 only and not the full Quarter 4 of 2021
+
+	The correct SalesLY QTD:
+	= IF(
+		LASTDATE(Date[Date]) > TODAY(),
+		BLANK(), 
+		CALCULATE([SalesLY], DATESQTD(Date[Date]))
+	)
+
+----------------------------------------------------------------------------------------
+
+Calculating Last Week Sales
+	- There are no Time intelligence functions to calculate previous week.
+	- The DATEADD() function has only YEAR, QUARTER, MONTH, DAY options.
+
+	SalesPW = 
+	VAR CurrentWeek = SELECTEDVALUE(Dates[WeekNumber])
+	VAR CurrentYear = SELECTEDVALUE(Dates[Year])
+	VAR MaxWeekNumber = CALCULATE(MAX(Dates[WeekNumber]), ALL(DAtes)) // will always return 53
+	RETURN
+	SUMX(
+		FILTER(
+			ALL(Dates),
+			IF(
+				CurrentWeek = 1,
+				Dates[WeekNumber] = MaxWeekNumber && Dates[Year] = CurrentYear - 1,
+				Dates[WeekNumber] = CurrentWeek && Dates[Year] = CurrentYear
+			),
+		),
+		[Total Sales]
+	)
+
+	- The FILTER() solves the issue of not getting sales for week 1 of 2016 as it was giving blank
+	value and not 53rd week of 2015.
+
+--------------------------------------------------------------------------------------
+
+
+
+--------------------------------------------------------------------------------------
+
+ROLLING CALCULATIONS: -> 
+= CALCULATE([TotalSales], DATESINPERIOD(Date[Date], MAX(Date[Date]), -10, DAY))
+
+The above DAX formula gives a 10-day rolling SUM of TotalSales. 
